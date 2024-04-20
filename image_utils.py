@@ -191,7 +191,7 @@ def quantize_maps_top_quarter(source_dir, target_dir):
             print(f"Processed and saved: {new_file_path}")
 
             
-def convert_series_to_nifti(input_directory, output_file):
+def convert_series_to_nifti(input_directory, output_file): #this version does not remove the text overlay but the version in the main.ipynb does
     reader = sitk.ImageSeriesReader()
     dicom_names = reader.GetGDCMSeriesFileNames(input_directory)
     reader.SetFileNames(dicom_names)
@@ -252,8 +252,8 @@ def delete_niigz_files(directory):
     # Iterate over the list of file paths
     for file_path in files:
         try:
-            os.remove(file_path)  # Attempt to remove the file
-            print(f'Deleted: {file_path}')  # Print confirmation of deletion
+            os.remove(file_path) 
+            print(f'Deleted: {file_path}')  
         except Exception as e:
             print(f'Failed to delete {file_path}: {e}')  # Print any error messages
 
@@ -273,8 +273,8 @@ def delete_nii_files(directory):
     # Iterate over the list of file paths
     for file_path in files:
         try:
-            os.remove(file_path)  # Attempt to remove the file
-            print(f'Deleted: {file_path}')  # Print confirmation of deletion
+            os.remove(file_path)  
+            print(f'Deleted: {file_path}')  
         except Exception as e:
             print(f'Failed to delete {file_path}: {e}') 
 
@@ -299,7 +299,6 @@ def convert_niigz_to_nii(input_dir, output_dir=None):
             # Load the .nii.gz file
             niigz_image = nib.load(file_path)
             # Construct the output file path with .nii extension
-            # Removing the '.gz' extension from the file name
             output_file_path = os.path.join(output_dir, file_name[:-3])
             # Save the image in .nii format
             nib.save(niigz_image, output_file_path)
@@ -345,8 +344,8 @@ def convert_and_copy_with_labels_and_rename(image_source_dir, image_target_dir, 
     # Move selected test files and their labels
     for idx, file_name in enumerate(tqdm(test_files, desc="Moving test files"), 1):
         base_name = re.match(r"(.*?)(?:_\d+)?(?=\.\w+$)", file_name).group(1)
-        new_image_name = f"{base_name}_{idx:03d}_0000.nii.gz"
-        new_label_name = f"{base_name}_{idx:03d}.nii.gz"
+        new_image_name = f"{base_name}_{idx:03d}_0000.nii.gz" # Suffix for nnunet format
+        new_label_name = f"{base_name}_{idx:03d}.nii.gz" # Suffix for nnunet format
 
         shutil.copy(os.path.join(image_source_dir, file_name), os.path.join(images_test_dir, new_image_name))
         shutil.copy(os.path.join(label_source_dir, file_name), os.path.join(labels_test_dir, new_label_name))
@@ -365,8 +364,8 @@ def convert_and_copy_with_labels_and_rename(image_source_dir, image_target_dir, 
         nii_label = nib.load(label_source_file_path)
 
         base_name = re.match(r"(.*?)(?:_\d+)?(?=\.\w+$)", file_name).group(1)
-        new_image_name = f"{base_name}_{idx:03d}_0000.nii.gz"
-        new_label_name = f"{base_name}_{idx:03d}.nii.gz"
+        new_image_name = f"{base_name}_{idx:03d}_0000.nii.gz" # Suffix for nnunet format
+        new_label_name = f"{base_name}_{idx:03d}.nii.gz" # Suffix for nnunet format
 
         image_target_file_path = os.path.join(image_target_dir, new_image_name)
         label_target_file_path = os.path.join(label_target_dir, new_label_name)
@@ -383,7 +382,7 @@ def generate_dataset_json(dataset_dir, num_quant_levels, channel_names, nnUNet_d
 
     Args:
     - dataset_dir (str): Directory where the dataset files are stored.
-    - num_quant_levels (int): Number of quantization levels (excluding the background).
+    - num_quant_levels (int): Number of quantization levels.
     - channel_names (dict): Mapping of channel indices to their names.
     - file_ending (str): File extension of the dataset files.
     - num_test_data (int): The number of the dataset to be used for testing.
