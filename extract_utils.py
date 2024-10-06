@@ -17,7 +17,6 @@ class DICOMSeriesExtractor:
             dicom = pydicom.dcmread(dicom_path, stop_before_pixels=True)
             series_description = getattr(dicom, 'SeriesDescription', 'Unknown').upper().strip()
             if any(ignore_term in series_description for ignore_term in self.ignore_terms):
-                # Debug print can be uncommented to show when ignore terms are found
                 # print(f"Ignore term found in series description '{series_description}' for file '{dicom_path}'")
                 return None
             return dicom_path, series_description
@@ -52,10 +51,9 @@ class DICOMSeriesExtractor:
                     print(f"No desired series identified for patient '{patient_dir}'. All available series: {all_series_descriptions}")
                 else:
                     print(f"Validated series for {patient_dir}: {series_found}")
+                    #print(f"All available series: {all_series_descriptions}")
 
         print("Validation complete.")
-
-
 
 
     def copy_dicom(self, target_base):
@@ -70,6 +68,7 @@ class DICOMSeriesExtractor:
                 try:
                     # Convert the first DICOM path in the list (assuming single series processed per patient)
                     convert_series_to_nifti(os.path.dirname(paths[0]), output_file)
+                    print(paths[0] + " " + output_file)
                     print(f"Converted and saved DICOM from {patient} to {output_file}")
                 except Exception as e:
                     print(f"Failed to convert DICOM for {patient}: {e}")
@@ -77,8 +76,12 @@ class DICOMSeriesExtractor:
                 print(f"No valid DICOM files found for patient {patient}. No NIfTI file created.")
         print("All DICOM conversions completed.")
 
-
-
+    def print_matched_series(self):
+        """Print the matched series for each patient."""
+        for patient, paths in self.matched_dicom_files.items():
+            print(f"Patient: {patient}")
+            for path in paths:
+                print(f"  DICOM Path: {path}")
 
 
 class DICOMSeriesManager:
@@ -90,7 +93,7 @@ class DICOMSeriesManager:
         """List all DICOM series descriptions organized by patient."""
         for patient_dir in tqdm(os.listdir(self.base_path)):
             patient_path = os.path.join(self.base_path, patient_dir)
-            if os.path.isdir(patient_path):  # Ensure it is a directory
+            if os.path.isdir(patient_path):
                 for root, dirs, files in os.walk(patient_path):
                     for file in files:
                         if file.lower().endswith('.dcm'):

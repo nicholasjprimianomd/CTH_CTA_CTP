@@ -169,15 +169,15 @@ def quantize_maps_top_quarter(source_dir, target_dir):
             non_background_data = image_data[non_background_mask]
 
             # Calculate the 75th percentile for non-background pixels
-            percentile_75 = np.percentile(non_background_data, 75)
+            percentile_75 = np.percentile(non_background_data, 90)
 
             # Initialize quantized data as zeros
             quantized_data = np.zeros_like(image_data)
 
             # Set pixels above the 75th percentile to 1
-            quantized_data[image_data > percentile_75] = 2
+            quantized_data[image_data < percentile_75] = 2
 
-            quantized_data[image_data < percentile_75] = 1
+            quantized_data[image_data > percentile_75] = 1
             
             # Ensure true background remains 0
             quantized_data[background_mask] = 0
@@ -277,6 +277,28 @@ def delete_nii_files(directory):
             print(f'Deleted: {file_path}')  
         except Exception as e:
             print(f'Failed to delete {file_path}: {e}') 
+            
+def delete_niigz_files(directory):
+    """
+    Deletes all files with the .nii extension in the specified directory.
+
+    Args:
+    directory (str): The path to the directory where the files are located.
+    """
+    # Create the full path pattern to find .nii files
+    pattern = os.path.join(directory, '**', '*.nii.gz')
+    
+    # Use glob to find all files matching the pattern
+    files = glob.glob(pattern, recursive=True)
+    
+    # Iterate over the list of file paths
+    for file_path in files:
+        try:
+            os.remove(file_path)  
+            print(f'Deleted: {file_path}')  
+        except Exception as e:
+            print(f'Failed to delete {file_path}: {e}') 
+
 
 def convert_niigz_to_nii(input_dir, output_dir=None):
     """
